@@ -3,7 +3,7 @@ use solana_program::entrypoint;
 use solana_program::entrypoint::ProgramResult;
 use solana_program::pubkey::Pubkey;
 use crate::instructions::MovieInstruction;
-use crate::processors::add_movie_review;
+use crate::processors::{add_movie_review, update_movie_review};
 
 entrypoint!(process_instruction);
 
@@ -17,6 +17,9 @@ pub fn process_instruction(
     match instruction {
         MovieInstruction::AddMovieReview {title, rating, description} => {
             add_movie_review(program_id, accounts, title, rating, description)
+        }
+        MovieInstruction::UpdateMovieReview {title, rating, description} => {
+            update_movie_review(program_id, accounts, title, rating, description)
         }
     }
 }
