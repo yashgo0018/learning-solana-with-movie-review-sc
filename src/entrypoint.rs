@@ -1,0 +1,22 @@
+use solana_program::account_info::AccountInfo;
+use solana_program::entrypoint;
+use solana_program::entrypoint::ProgramResult;
+use solana_program::pubkey::Pubkey;
+use crate::instructions::MovieInstruction;
+use crate::processors::add_movie_review;
+
+entrypoint!(process_instruction);
+
+pub fn process_instruction(
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    instruction_data: &[u8]
+) -> ProgramResult {
+    let instruction = MovieInstruction::unpack(&instruction_data)?;
+
+    match instruction {
+        MovieInstruction::AddMovieReview {title, rating, description} => {
+            add_movie_review(program_id, accounts, title, rating, description)
+        }
+    }
+}
