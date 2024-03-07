@@ -1,5 +1,6 @@
 use borsh::{BorshDeserialize};
 use solana_program::program_error::ProgramError;
+use solana_program::pubkey::Pubkey;
 
 pub enum MovieInstruction {
     AddMovieReview {
@@ -11,10 +12,11 @@ pub enum MovieInstruction {
         title: String,
         rating: u8,
         description: String
+    },
+    AddComment {
+        comment: String
     }
 }
-
-
 
 #[derive(BorshDeserialize)]
 struct MovieReviewPayload {
@@ -23,20 +25,36 @@ struct MovieReviewPayload {
     description: String
 }
 
+#[derive(BorshDeserialize)]
+struct CommentPayload {
+    comment: String
+}
+
 impl MovieInstruction {
     pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
         let (&variant, rest) = input.split_first().ok_or(ProgramError::InvalidInstructionData)?;
-        let instruction = MovieReviewPayload::try_from_slice(rest).unwrap();
         Ok(match variant {
-            0 => Self::AddMovieReview {
-                title: instruction.title,
-                rating: instruction.rating,
-                description: instruction.description,
+            0 => {
+                let instruction = MovieReviewPayload::try_from_slice(rest).unwrap();
+                Self::AddMovieReview {
+                    title: instruction.title,
+                    rating: instruction.rating,
+                    description: instruction.description,
+                }
             },
-            1 => Self::UpdateMovieReview {
-                title: instruction.title,
-                rating: instruction.rating,
-                description: instruction.description,
+            1 => {
+                let instruction = MovieReviewPayload::try_from_slice(rest).unwrap();
+                Self::UpdateMovieReview {
+                    title: instruction.title,
+                    rating: instruction.rating,
+                    description: instruction.description,
+                }
+            },
+            2 => {
+                let instruction = CommentPayload::try_from_slice(rest).unwrap();
+                Self::AddComment {
+                    comment: instruction.comment
+                }
             },
             _ => return Err(ProgramError::InvalidInstructionData)
         })
